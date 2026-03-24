@@ -38,6 +38,7 @@ func startScrapping(
 
 			go scrapeFeed(db, wg, feed)
 		}
+		wg.Wait()
 	}
 }
 
@@ -87,3 +88,26 @@ func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 	}
 	log.Printf("feed %s collected, %v posts found", feed.Name, len(rssFeed.Channel.Item))
 }
+
+
+
+// Define a new handler type that returns an error
+// type HTTPHandlerWithErr func(http.ResponseWriter, *http.Request) error
+
+// // Handle wraps your error-returning handlers
+// func (r *Router) Handle(pattern string, handler HTTPHandlerWithErr) {
+//     r.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+//         if err := handler(w, r); err != nil {
+//             // Check if it's an HTTPError
+//             var httpErr *httperror.HTTPError
+//             if errors.As(err, &httpErr) {
+//                 http.Error(w, err.Error(), httpErr.Code)
+//                 slog.Debug("http error", "code", httpErr.Code, "err", err.Error())
+//             } else {
+//                 // Default to 500
+//                 http.Error(w, err.Error(), http.StatusInternalServerError)
+//                 slog.Error("internal server error", "err", err.Error())
+//             }
+//         }
+//     })
+// }

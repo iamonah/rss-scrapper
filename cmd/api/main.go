@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -35,9 +37,22 @@ func main() {
 		DB:     queries,
 	}
 
-	go startScrapping(queries, 10, time.Minute)
+	ctx, cancel := context.WithCancel(context.Background())
+	
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		Scrapping(queries, 10, time.Minute, ctx)
+		wg.Done()
+		}()
+
 	err = app.Serve()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Server shutdown abruptly %v", err)
+		return
 	}
+	
+	cancel()
+	wg.Wait()
+	log.Println("application shutdown complete")
 }

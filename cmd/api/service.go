@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func (app *application) Serve() error {
+func (app *application) Serves() error {
 
 	server := http.Server{
 		Addr:         fmt.Sprintf(":%v", app.config.port),
@@ -34,6 +34,7 @@ func (app *application) Serve() error {
 		defer cancel()
 
 		shutDownError <- server.Shutdown(ctx)
+
 	}()
 
 	log.Printf("Server starting at port %v\n", app.config.port)
@@ -41,13 +42,10 @@ func (app *application) Serve() error {
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
-
-	// Wait for shutdown or timeout error
-	if err := <-shutDownError; err != nil {
-		log.Printf("Shutdown timeout exceeded, forcing exit: %v", err)
-		return err
+	if err = <-shutDownError; err != nil {
+		log.Printf("shutting down in process: %v\n", err)
 	}
-
 	log.Println("Server stopped")
+
 	return nil
 }
